@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#241e3b">
+<meta name="description" content="Стефания и Роман: Любовь сильнее мира — волшебный рисованный 2D-платформер о двух собаках, которые нашли друг друга.">
+<title>Стефания и Роман: Любовь сильнее мира</title>
+<style>
+:root{--ink:#231d35;--cream:#fff3df;--pink:#ff6d97;--yellow:#ffc765;--teal:#6be2c8;--white:#fffaf3}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#201c34;color:var(--white);font-family:Trebuchet MS,Verdana,Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#grain{position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.27'/%3E%3C/svg%3E")}
+#hud{position:fixed;left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));display:none;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:5}
+.hudChunk{padding:9px 13px;border:2px solid rgba(37,28,53,.8);background:rgba(255,245,224,.94);color:var(--ink);border-radius:16px;box-shadow:4px 5px 0 rgba(35,29,53,.23);font-weight:900;font-size:14px}
+.hudChapter{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#795c76;margin-bottom:2px}.hudTitle{font-size:15px}.hudRight{display:flex;align-items:center;gap:8px}.hudHeart{font-size:22px;color:#ed5085;text-shadow:1px 1px #442943;letter-spacing:2px;white-space:nowrap}.hudItems{font-size:18px;white-space:nowrap}.iconBtn{min-width:44px;min-height:44px;pointer-events:auto;border:2px solid var(--ink);border-radius:15px;color:var(--ink);background:#fff1d8;box-shadow:3px 4px 0 rgba(35,29,53,.25);font-size:20px;font-weight:900;display:grid;place-items:center}.iconBtn:active{transform:translate(2px,2px);box-shadow:1px 2px 0 rgba(35,29,53,.25)}
+#hintToast{position:fixed;top:93px;left:50%;transform:translateX(-50%) translateY(-14px);max-width:min(90vw,670px);background:rgba(35,29,53,.91);border:1px solid #ffe0a4;color:white;border-radius:16px;padding:10px 18px;text-align:center;font-weight:800;font-size:14px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:8;line-height:1.4}#hintToast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+#mobileControls{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));display:none;align-items:end;justify-content:space-between;z-index:6;pointer-events:none}.ctrlCluster{display:flex;gap:13px}.control{pointer-events:auto;width:72px;height:72px;display:flex;align-items:center;justify-content:center;border-radius:24px;border:3px solid #231d35;background:rgba(255,243,220,.87);box-shadow:3px 5px 0 #231d35;color:#231d35;font-size:34px;font-weight:900;line-height:1;touch-action:none}.control.jump{width:94px;height:86px;border-radius:26px;background:rgba(255,132,164,.92);font-size:21px;flex-direction:column;gap:3px}.control .ctrlSub{font-size:10px;letter-spacing:1px}.control.active{background:#ffe178;transform:translate(2px,3px);box-shadow:1px 2px 0 #231d35}
+#overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:22px 15px;overflow:auto;background:rgba(29,22,47,.25);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}#overlay.hidden{display:none}
+.panel{position:relative;width:min(720px,100%);max-height:calc(100dvh - 40px);overflow:auto;overscroll-behavior:contain;border:4px solid var(--ink);box-shadow:10px 12px 0 rgba(28,22,47,.65);border-radius:27px;background:#fff2dd;color:var(--ink);padding:31px 37px 29px;text-align:center;animation:pop .25s ease-out}@keyframes pop{from{transform:scale(.96);opacity:.7}to{transform:scale(1);opacity:1}}
+.panel:before{content:'✦';position:absolute;left:18px;top:14px;color:#f76a98;font-size:23px}.panel:after{content:'✦';position:absolute;right:20px;bottom:18px;color:#ebac50;font-size:27px}
+.eyebrow{text-transform:uppercase;letter-spacing:3px;color:#ab497b;font-weight:900;font-size:12px;margin:0 0 11px}.panel h1{margin:2px 0 10px;font-family:Georgia,'Times New Roman',serif;font-weight:900;font-size:clamp(31px,5vw,50px);letter-spacing:-1.5px;line-height:1.07}.panel h1 em{color:#e04f80;font-style:normal}.panel h2{margin:0 0 13px;font-family:Georgia,'Times New Roman',serif;font-size:clamp(29px,4vw,41px);line-height:1.15}.panel p{font-size:16px;line-height:1.59;margin:10px auto 15px;max-width:580px}.panel strong{font-weight:900}
+.storyQuote{background:#fffafd;border-left:5px solid #ea7094;border-radius:12px;padding:13px 18px;margin:21px auto;max-width:570px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:18px;line-height:1.43;text-align:left}
+.btn{border:3px solid var(--ink);border-radius:15px;background:var(--pink);color:var(--ink);padding:14px 27px;box-shadow:4px 5px 0 var(--ink);font-weight:900;font-size:16px;min-height:51px;transition:transform .1s,box-shadow .1s}.btn:hover{filter:brightness(1.05)}.btn:active{transform:translate(3px,4px);box-shadow:1px 1px 0 var(--ink)}.btn.secondary{background:#ffffff}.buttonRow{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;margin-top:16px}.tiny{font-size:12px!important;color:#766a78}.introTips{display:flex;justify-content:center;gap:11px;flex-wrap:wrap;margin:19px auto}.pill{background:#fff;border:2px solid #3c3550;border-radius:30px;padding:7px 13px;font-size:12px;font-weight:900}.chapterNo{font-weight:900;color:#d7527b;letter-spacing:1px;text-transform:uppercase;font-size:13px;margin:0 0 10px}.separator{height:2px;background:repeating-linear-gradient(90deg,#e8c8c4 0,#e8c8c4 12px,transparent 12px,transparent 22px);margin:15px auto}
+#endingText{position:fixed;left:50%;bottom:clamp(15px,4vh,28px);transform:translateX(-50%);width:min(800px,calc(100% - 28px));padding:15px 23px;background:rgba(33,27,51,.91);border:2px solid rgba(255,229,199,.75);border-radius:20px;color:#fff9e8;box-shadow:0 8px 32px rgba(18,13,28,.25);font-size:clamp(15px,2.4vw,20px);line-height:1.4;text-align:center;z-index:6;display:none;pointer-events:none}.endingSpeaker{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#ffafce;font-weight:900;margin-bottom:4px}#endingText.beachMode{bottom:auto;top:clamp(100px,22vh,175px)}#skipButton{position:fixed;top:max(15px,env(safe-area-inset-top));right:max(15px,env(safe-area-inset-right));z-index:7;display:none;background:rgba(255,246,226,.95);border:2px solid #231d35;border-radius:12px;padding:9px 14px;color:#231d35;font-weight:900;box-shadow:2px 3px 0 #231d35}
+#orientation{display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:4;background:rgba(28,22,47,.73);border-radius:20px;padding:7px 14px;font-size:11px;white-space:nowrap;pointer-events:none}
+@media (pointer:coarse){#mobileControls.playing{display:flex}#orientation.playing{display:block}}
+@media(max-width:640px){.panel{padding:23px 19px}.panel h1{font-size:34px}.panel p{font-size:14px}.storyQuote{font-size:15px;margin:15px auto}.hudChunk{padding:7px 9px}.hudChapter{font-size:9px}.hudTitle{font-size:11px}.hudRight{gap:5px}.hudHeart{font-size:16px}.hudItems{font-size:13px}.iconBtn{min-height:36px;min-width:36px;font-size:17px;border-radius:10px}#hintToast{top:78px;font-size:12px}.control{width:65px;height:65px;border-radius:21px}.control.jump{width:81px;height:74px;font-size:17px}.ctrlCluster{gap:10px}#endingText{bottom:15px;font-size:15px;padding:11px 14px}}
+@media (max-height:550px){.panel{padding:17px 25px}.panel h1{font-size:33px}.panel h2{font-size:28px}.panel p{font-size:14px;line-height:1.4;margin:7px auto}.storyQuote{font-size:15px;margin:12px auto;padding:9px 14px}.introTips{margin:9px auto}.buttonRow{margin-top:8px}.btn{padding:9px 16px;min-height:42px;font-size:14px}.control{width:57px;height:57px;border-radius:17px;font-size:24px}.control.jump{width:74px;height:67px}.hudChunk{padding:6px 10px}#orientation{display:none!important}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Платформер: Стефания спешит навстречу Роману"></canvas><div id="grain"></div>
+<div id="hud" aria-live="polite"><div class="hudChunk"><div id="hudChapter" class="hudChapter">Глава 1 / 3</div><div id="hudTitle" class="hudTitle">Город забытых обещаний</div></div><div class="hudRight"><div class="hudChunk"><span id="hudHearts" class="hudHeart">♥ ♥ ♥ ♥</span> <span id="hudItems" class="hudItems">💌 0</span></div><button id="muteBtn" class="iconBtn" title="Звук (M)" aria-label="Выключить звук">♫</button><button id="pauseBtn" class="iconBtn" title="Пауза (P)" aria-label="Пауза">Ⅱ</button></div></div>
+<div id="hintToast" aria-live="polite"></div>
+<div id="mobileControls"><div class="ctrlCluster"><button class="control" id="leftBtn" aria-label="Влево">◀</button><button class="control" id="rightBtn" aria-label="Вправо">▶</button></div><button class="control jump" id="jumpBtn" aria-label="Прыжок"><span>↑</span><span class="ctrlSub">ПРЫЖОК</span></button></div>
+<div id="orientation">↻ Горизонтально играть удобнее</div>
+<div id="endingText" aria-live="off"><span class="endingSpeaker" id="endingSpeaker"></span><span id="endingLine"></span></div>
+<button id="skipButton">К следующей сцене ›</button>
+<div id="overlay"><section id="panel" class="panel"></section></div>
+<script>
+'use strict';
+(() => {
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});
+const el=id=>document.getElementById(id);
+const overlay=el('overlay'),panel=el('panel'),hud=el('hud'),mobile=el('mobileControls'),hint=el('hintToast'),endCaption=el('endingText'),skip=el('skipButton');
+const W=960,H=540,PI=Math.PI,TAU=PI*2;
+let DPR=1,screenScale=1,offX=0,offY=0;
+let state='title',levelIndex=0,stage=null,player=null,camera=0,clock=0,wallClock=0,frameDt=0;
+let hearts=0,lives=4,maxLives=4,checkpoint=null,particles=[],animations=[],toastTimeout=0;
+let endingTime=0,endingPhase=-1,endingTextKey=-1,slowMo=false;
+const input={left:false,right:false,jump:false},keyDown=new Set();
+const clamp=(a,b,c)=>Math.max(b,Math.min(c,a));
+const lerp=(a,b,t)=>a+(b-a)*clamp(t,0,1);
+const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+const gameplayViewWidth=()=>{const ratio=canvas.width/canvas.height;if(state==='playing'&&ratio<.95){const z=Math.min(screenScale*1.55,canvas.height/H*.75);return canvas.width/z;}return W;};
+const rand=n=>{const v=Math.sin(n*128.153+78.23)*43758.5453;return v-Math.floor(v)};
+function resize(){
+ const rect=canvas.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(rect.width*DPR);canvas.height=Math.round(rect.height*DPR);
+ screenScale=Math.min(canvas.width/W,canvas.height/H);offX=(canvas.width-W*screenScale)/2;offY=(canvas.height-H*screenScale)/2;
+}
+window.addEventListener('resize',resize,{passive:true});window.addEventListener('orientationchange',resize,{passive:true});resize();
+const LEVELS=[
+ {title:'Город забытых обещаний',subtitle:'Глава 1 · Голливудские трещины',width:3630,theme:0,
+  intro:'В городе, где даже грусть продают с рекламной интеграцией, Стефания узнала: Роман ждёт её за другой стороной холмов.',
+  quote:'«Именно в тот день, когда я перестала верить в счастливый финал, он назвал меня своим домом».',
+  floors:[[0,760,460],[875,1460,460],[1595,2230,460],[2355,3010,460],[3120,3650,460]],
+  ledges:[[305,405,130],[1010,385,130],[1765,382,145],[2490,382,140],[3280,385,140]],
+  gaps:[],enemies:[[525,635,460,'camera'],[1150,1260,460,'suit'],[1910,2070,460,'camera'],[2660,2830,460,'suit'],[3390,3520,460,'camera']],
+  spikes:[[1360,60,460],[2090,64,460],[2870,58,460]],
+  letters:[[380,365],[707,414],[1060,350],[1675,404],[1830,346],[2440,411],[2548,345],[3210,414],[3345,351]],
+  flags:[1675],exit:3545,start:[62,425],signs:[[115,'ВСЁ ХОРОШО*'],[1450,'ХОЛЛИВУ']] ,dialogues:[[690,'Таксист-лис: «Любовь? В Холливу у неё низкий рейтинг».'],[2330,'Стефания: «Они могут отменить сериал, но не мои чувства».']]
+ },
+ {title:'Фабрика счастливых лиц',subtitle:'Глава 2 · Радость по подписке',width:3960,theme:1,
+  intro:'Каждый прохожий здесь обязан улыбаться. Только Стефания не желает делать вид, что одиночества не существует.',
+  quote:'«Иногда самая смелая вещь на свете — не улыбаться, когда больно, а идти дальше».',
+  floors:[[0,640,470],[760,1315,470],[1440,1980,470],[2100,2720,470],[2850,3410,470],[3530,4010,470]],
+  ledges:[[370,395,145],[935,380,145],[1580,397,140],[2240,380,155],[2955,382,140],[3630,393,140]],
+  enemies:[[410,580,470,'suit'],[900,1060,470,'camera'],[1610,1795,470,'suit'],[2300,2480,470,'camera'],[3000,3270,470,'suit'],[3600,3790,470,'camera']],
+  spikes:[[1140,60,470],[1875,60,470],[2570,75,470],[3290,60,470]],
+  letters:[[460,359],[805,426],[990,340],[1535,432],[1650,361],[2155,431],[2295,343],[2880,425],[3042,345],[3590,432],[3690,360]],
+  flags:[1520,2930],exit:3870,start:[62,436],signs:[[95,'СТУДИЯ №404'],[2130,'СЧАСТЬЕ: 9,99₽']],dialogues:[[730,'Продюсер-кот: «Настоящие чувства? Мы такое не продлеваем».'],[2100,'Стефания: «А я не оформляла подписку на одиночество!»']]
+ },
+ {title:'Крыши перед рассветом',subtitle:'Глава 3 · Ниже только страх',width:4010,theme:2,
+  intro:'В городе гаснет свет. Последний путь лежит по крышам, где страшно смотреть вниз — и невозможно не смотреть вперёд.',
+  quote:'«Мы не выбираем, какая нам достанется высота. Но мы выбираем, ради кого решимся прыгнуть».',
+  floors:[[0,600,454],[722,1200,443],[1320,1855,457],[1985,2505,429],[2645,3240,455],[3375,4040,447]],
+  ledges:[[300,372,150],[880,351,140],[1440,372,145],[2180,342,140],[2790,365,160],[3520,357,150]],
+  enemies:[[350,510,454,'camera'],[850,1030,443,'suit'],[1510,1765,457,'camera'],[2180,2380,429,'suit'],[2870,3070,455,'camera'],[3490,3700,447,'suit']],
+  spikes:[[1080,65,443],[1740,65,457],[2390,65,429],[3165,52,455]],
+  letters:[[355,333],[765,402],[930,312],[1380,406],[1505,330],[2020,379],[2245,305],[2680,405],[2850,326],[3400,401],[3580,317]],
+  flags:[2070,3420],exit:3905,start:[65,419],signs:[[90,'НЕ ОГЛЯДЫВАЙСЯ'],[2700,'ЛЮБОВЬ →']],dialogues:[[800,'Стефания: «Страшно прыгать... Но не увидеть Романа страшнее».'],[2750,'Роман, я рядом. Только бы хватило смелости ещё на один прыжок...']]
+ }
+];
+// Everything is drawn procedurally: no network, external fonts, images or audio files.
+let audioCtx=null,musicPos=0,musicClock=0,muted=false;
+function initAudio(){try{if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}catch(_){}}
+function tone(freq,dur=.15,type='sine',vol=.035,when=0){if(!audioCtx||muted)return;try{const t=audioCtx.currentTime+when,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+dur+.02);}catch(_){}}
+function sound(kind){if(muted)return;initAudio();if(kind==='jump'){tone(360,.12,'triangle',.055);tone(540,.13,'sine',.03,.08);}else if(kind==='heart'){tone(680,.10,'triangle',.04);tone(1020,.18,'sine',.055,.08);}else if(kind==='hit'){tone(230,.18,'sawtooth',.045);tone(140,.3,'triangle',.045,.10);}else if(kind==='checkpoint'){[520,680,830].forEach((f,i)=>tone(f,.25,'sine',.05,i*.10));}else if(kind==='win'){[392,494,587,784].forEach((f,i)=>tone(f,.35,'triangle',.045,i*.12));}else if(kind==='magic'){[466,587,698,932].forEach((f,i)=>tone(f,.5,'sine',.045,i*.17));}}
+function music(dt){if(!audioCtx||muted||state==='paused')return;musicClock-=dt;if(musicClock>0)return;musicClock=.28;const happy=state==='ending'&&endingTime>=16||state==='completed';const scale=happy?[0,4,7,11,12,7,4,7,0,4,7,12,11,7,4,7]:[0,3,7,10,12,7,3,7,0,5,7,10,12,7,5,7];const n=scale[musicPos%16];const root=happy?261.63:220;const note=root*Math.pow(2,n/12);tone(note,.16,'triangle',.012);if(musicPos%4===0)tone(root/2,.7,'sine',.018);musicPos++;}
+function setSoundUi(){el('muteBtn').textContent=muted?'♪̸':'♫';el('muteBtn').setAttribute('aria-label',muted?'Включить звук':'Выключить звук');}
+el('muteBtn').onclick=()=>{muted=!muted;setSoundUi();if(!muted)initAudio();};
+function rect(x,y,w,h,fill,stroke=null,lw=1){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);if(stroke){ctx.lineWidth=lw;ctx.strokeStyle=stroke;ctx.strokeRect(x,y,w,h);}}
+function rounded(x,y,w,h,r,fill,stroke=null,lw=1){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}}
+function ell(x,y,rx,ry,fill,stroke=null,lw=1,rot=0){ctx.beginPath();ctx.ellipse(x,y,Math.max(.01,rx),Math.max(.01,ry),rot,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}}
+function line(x1,y1,x2,y2,color,lw=2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.stroke();}
+function polygon(points,fill,stroke=null,lw=1){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}}
+function text(s,x,y,size=17,color='#fff',align='left',font='bold'){ctx.font=`${font} ${size}px Trebuchet MS,Arial,sans-serif`;ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(s,x,y);ctx.textAlign='left';}
+function heart(x,y,size=15,color='#ef5d88',stroke='#39253f'){ctx.save();ctx.translate(x,y);ctx.scale(size/18,size/18);ctx.beginPath();ctx.moveTo(0,8);ctx.bezierCurveTo(-18,-2,-10,-14,0,-6);ctx.bezierCurveTo(10,-14,18,-2,0,8);ctx.closePath();ctx.fillStyle=color;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}ctx.restore();}
+function star(x,y,r,fill='#fff1bd',points=4){ctx.beginPath();for(let i=0;i<points*2;i++){const a=i*PI/points-PI/2,rr=i%2?r*.23:r;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
+function cloud(x,y,s=1,shade='#fff4dd'){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ell(0,3,46,18,shade);ell(-28,-6,27,20,shade);ell(7,-13,33,27,shade);ell(35,-3,24,19,shade);ctx.restore();}
+function drawDachshund(x,y,scale=1,time=0,opt={}){
+ const dir=opt.dir||1,fly=!!opt.fly,hug=!!opt.hug,eyesClosed=!!opt.closed;
+ ctx.save();ctx.translate(x,y);ctx.scale(dir*scale,scale);
+ const step=opt.step||0;const bob=fly?Math.sin(time*3)*3:Math.sin(time*12)*Math.min(2,step*2);
+ ctx.translate(0,bob);if(fly)ctx.rotate(-.18);
+ const ink='#312438',fur='#b76c3e',light='#df9b5c',chest='#f3c490';
+ // tail and back legs
+ ctx.lineCap='round';ctx.beginPath();ctx.moveTo(4,14);ctx.quadraticCurveTo(-12,4,-11,-3);ctx.strokeStyle=ink;ctx.lineWidth=7;ctx.stroke();ctx.strokeStyle=fur;ctx.lineWidth=4;ctx.stroke();
+ const legSwing=Math.sin(time*14)*7*step;
+ for(const lx of [12,35]){
+  ctx.save();ctx.translate(lx,23);ctx.rotate((lx===12?1:-1)*legSwing*PI/180 + (fly?-.35:0));rounded(-5,-1,10,14,4,fur,ink,2.2);ell(1,13,8,4,'#654354',ink,1.6);ctx.restore();
+ }
+ ell(23,15,26,13,fur,ink,2.8);ell(33,19,14,6,light);
+ // scarf flowing behind
+ polygon([[35,5],[19,6],[12,9],[24,10],[14,15],[35,13]],'#56c8b4',ink,1.5);
+ ell(43,5,13,14,fur,ink,2.5);ell(51,10,15,7,chest,ink,1.8);
+ // droopy ear
+ ctx.save();ctx.rotate(Math.sin(time*7)*.04);ell(39,11,7,14,'#7d462e',ink,2, -.18);ctx.restore();
+ ell(52,10,10,5,light,ink,1.6);ell(60,8,4,3,ink);
+ if(eyesClosed)line(50,0,56,1,ink,2);else ell(52,-1,2.1,2.4,ink);
+ ell(53,-2,1,.8,'#fff');
+ if(hug){ctx.beginPath();ctx.arc(50,15,8,.6,2.4);ctx.strokeStyle=fur;ctx.lineWidth=5;ctx.stroke();}
+ // eyebrows and smile
+ line(49,-6,55,-5,'#70432e',1.7);ctx.beginPath();ctx.arc(52,11,6,.1,1.35);ctx.strokeStyle=ink;ctx.lineWidth=1.2;ctx.stroke();
+ ctx.restore();
+}
+function drawGreyhound(x,y,scale=1,time=0,opt={}){
+ const dir=opt.dir||1,fly=!!opt.fly,hug=!!opt.hug,closed=!!opt.closed;ctx.save();ctx.translate(x,y);ctx.scale(dir*scale,scale);
+ const ink='#2f2940',fur='#b4a6b8',light='#e4d6cd';
+ const bob=fly?Math.sin(time*3+1)*4:Math.sin(time*5)*1.5;ctx.translate(0,bob);if(fly)ctx.rotate(-.17);
+ ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,14);ctx.quadraticCurveTo(-18,16,-14,2);ctx.strokeStyle=ink;ctx.lineWidth=6;ctx.stroke();ctx.strokeStyle=fur;ctx.lineWidth=3;ctx.stroke();
+ for(let ix=0;ix<2;ix++){const lx=ix*20+10;ctx.save();ctx.translate(lx,22);ctx.rotate(fly?-.5:Math.sin(time*9+ix*PI)*.06);rounded(-4,0,8,24,3,fur,ink,2);ell(2,23,6,3,light,ink,1.4);ctx.restore();}
+ ell(22,12,22,13,fur,ink,2.8);ell(31,16,8,7,light);
+ // Bend his long greyhound neck toward Stefania for the embrace and kiss.
+ ctx.save();if(opt.bow){ctx.translate(34,11);ctx.rotate(.85*opt.bow);ctx.translate(-34,-11);}
+ // long neck, elegant head
+ polygon([[30,11],[37,-16],[44,-23],[53,-21],[47,14]],fur,ink,2.5);
+ ell(48,-27,13,12,fur,ink,2.5);polygon([[42,-32],[36,-47],[45,-41],[48,-34]],fur,ink,2);polygon([[51,-35],[55,-48],[60,-36]],fur,ink,1.6);
+ ell(59,-23,18,7,light,ink,2);ell(76,-22,4,3,ink);
+ if(closed)line(49,-29,56,-28,ink,2);else ell(53,-29,2.3,2.5,ink);
+ ctx.beginPath();ctx.arc(65,-20,5,.1,1.3);ctx.strokeStyle=ink;ctx.lineWidth=1.3;ctx.stroke();
+ // a rosy necktie / scarf
+ polygon([[37,-13],[46,-9],[51,-15],[44,-18]],'#ff789f',ink,1.5);polygon([[42,-10],[22,-8],[29,-4],[41,-3]],'#ff789f',ink,1.4);ctx.restore();
+ if(hug){ctx.beginPath();ctx.moveTo(47,8);ctx.quadraticCurveTo(70,20,79,6);ctx.strokeStyle=fur;ctx.lineWidth=7;ctx.stroke();ctx.strokeStyle=ink;ctx.lineWidth=1.5;ctx.stroke();}
+ ctx.restore();
+}
+function drawSky(theme,time=0,cinema=''){
+ let top='#6d5788',bottom='#ffc39b';if(theme===1){top='#34365c';bottom='#98608d';}if(theme===2){top='#211c48';bottom='#b66b86';}if(cinema==='magic'){top='#4a2e79';bottom='#f1a2a4';}if(cinema==='flight'){top='#1d4e86';bottom='#f09fb2';}if(cinema==='beach'){top='#754577';bottom='#ffcf94';}
+ const gr=ctx.createLinearGradient(0,0,0,H);gr.addColorStop(0,top);gr.addColorStop(1,bottom);rect(0,0,W,H,gr);
+ if(theme===2||cinema==='magic'||cinema==='flight'){for(let i=0;i<78;i++){const xx=rand(i+24)*W,yy=rand(i+313)*270,rr=rand(i+587)*1.5+.3;ell(xx,yy,rr,rr,'rgba(255,244,220,'+(0.15+rand(i+87)*.65)+')');}}
+ const sunX=cinema==='beach'?740:770,sunY=cinema==='beach'?232:theme===2?123:155;
+ const glow=ctx.createRadialGradient(sunX,sunY,6,sunX,sunY,200);glow.addColorStop(0,cinema==='beach'?'rgba(255,223,124,.6)':'rgba(255,216,154,.4)');glow.addColorStop(1,'rgba(255,217,165,0)');rect(sunX-200,sunY-200,400,400,glow);
+ ell(sunX,sunY,cinema==='beach'?52:theme===2?43:64,cinema==='beach'?52:theme===2?43:64,theme===2?'#f9deb7':'#ffd19a');
+ for(let i=0;i<9;i++){const xx=((i*193+80)-time*(i%2?.7:.45))%(W+350);cloud((xx+W+350)%(W+350)-130,55+(i*61)%175,.55+rand(i+5)*.8,'rgba(255,235,218,.2)');}
+}
+function drawHills(camera,theme){ctx.save();const par=camera*.11;ctx.translate(-par,0);for(let layer=0;layer<3;layer++){const y0=theme===2?335+layer*45:310+layer*40;ctx.beginPath();ctx.moveTo(-220,y0+110);for(let x=-220;x<W+par+270;x+=25){const h=30*Math.sin((x+layer*180)/130)+17*Math.cos((x+layer*110)/68);ctx.lineTo(x,y0+h)}ctx.lineTo(W+par+280,H);ctx.lineTo(-220,H);ctx.closePath();ctx.fillStyle=[theme===1?'#5b5374':'#86728e',theme===2?'#544364':'#6f617c',theme===2?'#433b62':'#665875'][layer];ctx.fill();}ctx.restore();}
+function drawCity(camera,theme,time){ctx.save();ctx.translate(-camera*.28,0);const total=W+camera*.28+280;for(let i=-2;i<Math.ceil(total/87)+3;i++){
+ const x=i*87+rand(i+60)*16,h=95+rand(i+40)*140,y=theme===2?375-h:410-h;
+ const c=theme===2?['#392c58','#443557','#413955'][((i%3)+3)%3]:theme===1?['#46445e','#5b4769','#58516d'][((i%3)+3)%3]:['#77667e','#8a6880','#735a75'][((i%3)+3)%3];rect(x,y,72,h+160,c,'#342a4d',2);
+ for(let a=0;a<3;a++)for(let b=0;b<Math.floor(h/24);b++){let light=rand(i*31+a*9+b)> .42;rect(x+8+a*20,y+9+b*24,10,13,light?(theme===2?'#efbd98':'#dfaf96'):'#57455f');}
+ if(i%4===1){rect(x+32,y-24,6,24,'#3f3355');ell(x+35,y-26,11,5,'#463557');}
+ }ctx.restore();}
+function drawStudio(camera,time){ctx.save();ctx.translate(-camera*.18,0);for(let i=-2;i<20;i++){
+ const x=i*300;rect(x,120,290,280,'rgba(30,29,53,.29)','#383046',3);
+ for(let j=0;j<4;j++)rect(x+17+j*65,145,40,20,'#c3879a','#2d263a',2);
+ polygon([[x+70,300],[x+140,235],[x+210,300]],'#8e6377','#30283c',3);
+ if(i%2===0){rounded(x+36,220,215,77,12,'#e0a1a0','#30283c',4);text('УЛЫБКА',x+144,253,24,'#352d49','center');text('ОБЯЗАТЕЛЬНА',x+144,278,16,'#352d49','center');}
+ }ctx.restore();
+}
+function bgForLevel(theme,camera,time){drawSky(theme,time);drawHills(camera,theme);if(theme===1)drawStudio(camera,time);else drawCity(camera,theme,time);
+ ctx.save();ctx.translate(-camera*.58,0);for(let i=-1;i<22;i++){let x=i*400+180;line(x,365,x+6,450,'rgba(48,37,62,.5)',4);ell(x,364,16,18,'#f6b88e','#52405b',2);line(x+2,386,x+60,395,'rgba(53,35,64,.42)',2);}ctx.restore();
+}
+function drawGround(p,theme){const x=p.x,y=p.y,w=p.w,h=H-y+100;rect(x,y,w,h,theme===1?'#66536b':theme===2?'#514561':'#735b70','#29233a',4);rect(x,y+9,w,11,theme===1?'#a67a82':theme===2?'#a16f8a':'#bc897b');rect(x,y,w,11,theme===1?'#e6bd98':theme===2?'#dc9b9e':'#e8b89a','#2c2740',3);for(let px=Math.ceil(x/65)*65;px<x+w-15;px+=65){line(px,y+27,px-6,y+54,'rgba(35,29,53,.24)',2);line(px+19,y+70,px+56,y+70,'rgba(35,29,53,.23)',2);}if(theme===2)for(let px=x+12;px<x+w-25;px+=110){rect(px,y-13,75,13,'#776080','#29253e',2);}}
+function drawLedge(p,time){ctx.save();rect(p.x,p.y,p.w,17,'#f6bc92','#37283c',3);rect(p.x+5,p.y+17,p.w-10,11,'#8d617b','#37283c',2);for(let x=p.x+10;x<p.x+p.w-8;x+=35)line(x,p.y+2,x+12,p.y+13,'rgba(113,70,83,.35)',1.5);ctx.restore();}
+function drawSpike(s,time){const count=Math.max(2,Math.ceil(s.w/15));rect(s.x,s.y-3,s.w,7,'#40374b');for(let i=0;i<count;i++){const a=s.x+i*s.w/count,b=s.x+(i+1)*s.w/count;polygon([[a,s.y],[a+s.w/count*.5,s.y-26],[b,s.y]],'#dcd0d1','#392e41',2);}for(let i=0;i<3;i++)star(s.x+6+i*s.w/3,s.y-30+Math.sin(time*4+i)*4,3,'#f5ddbf');}
+function drawEnemy(e,time){const x=e.x,y=e.y,ink='#2d263b';ctx.save();ctx.translate(x,y);
+ if(e.kind==='camera'){
+ // A frantic paparazzo raccoon with a flash camera.
+ ctx.translate(0,Math.sin(time*8+e.seed)*1.4);ell(0,-19,23,20,'#827181',ink,2.6);ell(-12,-36,8,12,'#827181',ink,2);ell(12,-36,8,12,'#827181',ink,2);ell(0,-22,20,10,'#bfb1af',ink,1.8);ell(-8,-23,7,7,'#373142');ell(8,-23,7,7,'#373142');ell(-8,-23,2.5,2.5,'white');ell(8,-23,2.5,2.5,'white');ell(0,-10,6,5,'#4b3646');rect(-17,-6,14,8,'#3d334b');rect(5,-6,14,8,'#3d334b');rounded(10,-29,25,17,3,'#45455b',ink,2);ell(24,-20,8,7,'#b6c8cc',ink,2);if(Math.sin(time*5+e.seed)> .89)star(29,-35,10,'#fff3ca');
+ }else{
+ ctx.translate(0,Math.sin(time*7+e.seed)*1.2);ell(0,-17,18,21,'#4c4a63',ink,3);polygon([[-13,-30],[-9,-43],[5,-39],[14,-28]],'#b6a7a3',ink,2);ell(0,-37,18,17,'#c7b8aa',ink,2.4);ell(-7,-40,3,3,'#292539');ell(7,-40,3,3,'#292539');line(-8,-31,9,-31,'#49364b',2.5);polygon([[-7,-7],[0,2],[7,-7]],'#ff7199',ink,1.5);rounded(-25,-14,50,14,4,'#545069',ink,2);rect(-16,-7,32,11,'#39334d');
+ }ctx.restore();}
+function drawLetter(x,y,time){const bob=Math.sin(time*4+x*.015)*5;ctx.save();ctx.translate(x,y+bob);ctx.rotate(Math.sin(time*2+x)*.12);rounded(-14,-10,28,21,3,'#fff0d5','#4c3355',2);polygon([[-14,-9],[0,3],[14,-9]],'#ffe4b9','#6d4b69',1.5);heart(0,-9,11,'#fb648c','#543447');star(15,-14,5,'#fff3bd');ctx.restore();}
+function drawCheckpoint(cp,time,active){const x=cp.x,y=cp.y;line(x,y-94,x,y,'#2c2940',5);polygon([[x+1,y-88],[x+64,y-75],[x+1,y-55]],active?'#87e8c2':'#ff9cb1','#32243a',2);heart(x+22,y-72,12,active?'#ef5481':'#ee617e');if(active){for(let i=0;i<7;i++)star(x+rand(i+5)*64,y-99+Math.sin(time*3+i)*13,3,'#fbe4b6');}}
+function drawExit(x,y,time,theme){const pul=Math.sin(time*4)*.06+1;ctx.save();ctx.translate(x,y);ctx.scale(pul,pul);const glow=ctx.createRadialGradient(0,-50,5,0,-50,100);glow.addColorStop(0,'rgba(255,168,192,.47)');glow.addColorStop(1,'rgba(255,168,192,0)');rect(-90,-158,180,180,glow);line(-28,-90,-28,0,'#3a2940',6);line(28,-90,28,0,'#3a2940',6);ctx.beginPath();ctx.arc(0,-90,28,PI,TAU);ctx.strokeStyle='#3a2940';ctx.lineWidth=6;ctx.stroke();rounded(-60,-117,120,34,12,'#fff3d8','#36263d',3);text('К РОМАНУ ♥',0,-95,16,'#a93e71','center');for(let i=0;i<5;i++)heart(Math.sin(time*2+i*1.8)*32,-100-(i*28+time*13)%104,5+i%3,'#f8a1b4',null);ctx.restore();}
+function drawSign(x,y,words){ctx.save();line(x,y-105,x,y,'#392b43',5);rounded(x-16,y-110,165,48,7,'#ffcf9f','#382a42',3);let a=words;ctx.save();ctx.translate(x+66,y-82);ctx.rotate(-.025);text(a,0,0,Math.min(14,210/Math.max(10,a.length)),'#3b2c48','center');ctx.restore();ctx.restore();}
+function drawParticles(dt){for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.gravity||0)*dt;if(p.life<=0){particles.splice(i,1);continue;}ctx.globalAlpha=clamp(p.life/p.max,0,1);if(p.kind==='heart')heart(p.x,p.y,p.r,p.color||'#ff7ba2',null);else star(p.x,p.y,p.r,p.color||'#fff2bd',p.kind==='star'?4:5);ctx.globalAlpha=1;}}
+function burst(x,y,n=15,kind='star',color='#ffe4ae'){for(let i=0;i<n;i++){const a=rand(clock*123+i*5)*TAU,s=55+rand(i+clock*6)*155;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-80,gravity:130,life:.6+rand(i*11+clock)*.7,max:1.3,r:3+rand(i+1)*5,kind,color});}if(particles.length>180)particles.splice(0,particles.length-180);}
+function resetInput(){input.left=false;input.right=false;input.jump=false;keyDown.clear();document.querySelectorAll('.control').forEach(b=>b.classList.remove('active'));}
+function showPanel(html){resetInput();overlay.classList.remove('hidden');panel.innerHTML=html;hud.style.display='none';mobile.classList.remove('playing');el('orientation').classList.remove('playing');endCaption.style.display='none';skip.style.display='none';}
+function hidePanel(){overlay.classList.add('hidden');hud.style.display='flex';mobile.classList.add('playing');el('orientation').classList.add('playing');}
+function toast(s,duration=2.7){hint.textContent=s;toastTimeout=duration;hint.classList.add('visible');}
+function hideToast(){hint.classList.remove('visible');toastTimeout=0;}
+function updateHUD(){el('hudChapter').textContent=`ГЛАВА ${levelIndex+1} / 3`;el('hudTitle').textContent=LEVELS[levelIndex].title;el('hudHearts').textContent='♥ '.repeat(lives).trim()+(lives<maxLives?' ♡'.repeat(maxLives-lives):'');el('hudItems').textContent='💌 '+hearts;}
+function title(){state='title';stage=null;camera=0;clock=0;hearts=0;lives=4;levelIndex=0;particles=[];showPanel(`<div class="eyebrow">Нарисованная история о большой любви</div><h1>Стефания и Роман:<br><em>Любовь сильнее мира</em></h1><p>Маленькая такса против большого жестокого города. Между ней и Романом — пропасти, папарацци и крайне сомнительные жизненные советы.</p><div class="storyQuote">«Они обещали, что любовь ничего не исправит. Просто они никогда не встречали Стефанию».</div><div class="introTips"><span class="pill">← → или A / D — идти</span><span class="pill">↑ / W / ПРОБЕЛ — прыгать</span><span class="pill">P — пауза · M — звук</span></div><div class="buttonRow"><button class="btn" id="startBtn">♥ Начать путешествие</button></div><p class="tiny">3 главы · контрольные точки · трогательная анимированная концовка · работает без интернета</p>`);el('startBtn').onclick=()=>{initAudio();showStory(0);};}
+function showStory(index){levelIndex=index;state='story';const data=LEVELS[index];showPanel(`<div class="chapterNo">${data.subtitle}</div><h2>${data.title}</h2><p>${data.intro}</p><div class="storyQuote">${data.quote}</div><p class="tiny">Собирайте письма ♥, прыгайте на врагов сверху и ищите флажки с сердцем — это контрольные точки.</p><div class="buttonRow"><button class="btn" id="goBtn">${index===0?'Вперёд, Стефания!':'Продолжить путь →'}</button></div>`);el('goBtn').onclick=()=>startLevel(index);}
+function startLevel(index,retain=false){levelIndex=index;const d=LEVELS[index];if(!retain){stage={...d,
+ platforms:[...d.floors.map(([x,end,y])=>({x,y,w:end-x,h:540-y+90,ground:true})),...d.ledges.map(([x,y,w])=>({x,y,w,h:18,ground:false}))],
+ enemies:d.enemies.map(([minX,maxX,y,kind],i)=>({x:minX+25,y,minX,maxX,kind,w:44,h:48,dir:i%2?1:-1,seed:i*1.4+index*2,alive:true})),
+ letters:d.letters.map(([x,y])=>({x,y,taken:false})),
+ spikes:d.spikes.map(([x,w,y])=>({x,w,y})),flags:d.flags.map(x=>({x,y:groundAt(d,x),active:false})),dialoguesSeen:new Set(),exit:d.exit};
+ player={x:d.start[0],y:d.start[1],w:48,h:34,vx:0,vy:0,onGround:false,coyote:.1,jumpBuffer:0,step:0,dir:1,invul:0,deadTimer:0};checkpoint={x:player.x,y:player.y};}
+ state='playing';hidePanel();hideToast();camera=clamp(player.x-200,0,d.width-gameplayViewWidth());updateHUD();if(index===0&&!retain)toast('Письма с любовью дают очки. Прыгай на врагов сверху!',4);}
+function groundAt(d,x){for(const f of d.floors)if(x>=f[0]&&x<=f[1])return f[2];return 460;}
+function loseLife(reason){if(state!=='playing')return;if(player.invul>0){if(player.y>H+60){player.x=checkpoint.x;player.y=checkpoint.y;player.vx=0;player.vy=0;}return;} sound('hit');lives--;burst(player.x+20,player.y,18,'star','#e99db1');updateHUD();if(lives<=0){state='gameover';showPanel(`<div class="eyebrow">Больно. Но история ещё не окончена.</div><h2>Даже таксы иногда падают</h2><p>Стефания не добралась до Романа с этой попытки. Мир, конечно, делает вид, что он тут ни при чём.</p><div class="storyQuote">«Поражение — это всего лишь место, откуда можно отправиться снова».</div><div class="buttonRow"><button class="btn" id="retryBtn">↻ Попробовать заново</button><button class="btn secondary" id="menuBtn">На главную</button></div>`);el('retryBtn').onclick=()=>{lives=4;hearts=0;startLevel(0)};el('menuBtn').onclick=title;return;}player.x=checkpoint.x;player.y=checkpoint.y;player.vy=0;player.vx=0;player.invul=1.5;camera=clamp(player.x-200,0,stage.width-gameplayViewWidth());toast(reason||'Упс! Ещё одна попытка!',2.2);}
+function hit(a,b){return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;}
+function updateGame(dt){clock+=dt;player.invul=Math.max(0,player.invul-dt);player.jumpBuffer=Math.max(0,player.jumpBuffer-dt);
+ const want=(input.right?1:0)-(input.left?1:0);const speed=player.onGround?365:347;
+ player.vx+=(want*speed-player.vx)*Math.min(1,dt*(player.onGround?13:8));if(Math.abs(player.vx)<.35)player.vx=0;if(want)player.dir=want;
+ player.coyote=player.onGround?.11:Math.max(0,player.coyote-dt);
+ if(player.jumpBuffer>0&&player.coyote>0){player.vy=-727;player.onGround=false;player.coyote=0;player.jumpBuffer=0;sound('jump');burst(player.x+23,player.y+30,4,'star','#e9c5a2');}
+ if(!input.jump&&player.vy< -290)player.vy+=1450*dt; // variable-height jump
+ player.vy=Math.min(1120,player.vy+1880*dt);
+ const oldY=player.y,oldBottom=oldY+player.h;player.x+=player.vx*dt;
+ player.x=clamp(player.x,0,stage.width-player.w);
+ // Side collisions with solid geometry, but avoid snagging on thin ledges.
+ for(const p of stage.platforms)if(p.ground&&hit(player,p)){
+  const prevX=player.x-player.vx*dt;
+  if(prevX+player.w<=p.x+3&&player.vx>0){player.x=p.x-player.w;player.vx=0;}
+  else if(prevX>=p.x+p.w-3&&player.vx<0){player.x=p.x+p.w;player.vx=0;}
+ }
+ player.y+=player.vy*dt;player.onGround=false;
+ if(player.vy>=0){let landing=null;for(const p of stage.platforms){if(player.x+player.w<=p.x+6||player.x>=p.x+p.w-6)continue;if(oldBottom<=p.y+10&&player.y+player.h>=p.y&&player.y<p.y){if(!landing||p.y<landing.y)landing=p;}}if(landing){player.y=landing.y-player.h;player.vy=0;player.onGround=true;}}
+ else for(const p of stage.platforms){if(!p.ground&&player.x+player.w>p.x+6&&player.x<p.x+p.w-6&&oldY>=p.y+17&&player.y<=p.y+18){player.y=p.y+19;player.vy=100;}}
+ if(player.y>H+100){loseLife('Пропасть не умеет сочувствовать. Но контрольная точка умеет!');return;}
+ player.step=lerp(player.step,player.onGround?Math.min(1,Math.abs(player.vx)/250):0,dt*9);
+ const playerMid={x:player.x+player.w/2,y:player.y+player.h/2};
+ for(const e of stage.enemies){if(!e.alive)continue;e.x+=e.dir*(60+(levelIndex*9))*dt;if(e.x<e.minX){e.x=e.minX;e.dir=1;}if(e.x>e.maxX){e.x=e.maxX;e.dir=-1;}const box={x:e.x-21,y:e.y-46,w:43,h:45};if(hit(player,box)){
+ if(player.vy>95&&oldBottom<=box.y+15){e.alive=false;player.vy=-510;player.onGround=false;hearts+=2;sound('heart');burst(e.x,e.y-21,13,'heart','#ff8eae');updateHUD();toast('Папарацци отправлен в отпуск. +2 письма!',1.7);}else if(player.invul<=0){loseLife('Не всем критикам нужно отвечать. Иногда лучше перепрыгнуть!');return;}
+ }}
+ for(const s of stage.spikes)if(player.x+player.w>s.x+7&&player.x<s.x+s.w-7&&player.y+player.h>s.y-24&&player.y<s.y+3){loseLife('Кажется, у города опять выросли шипы.');return;}
+ for(const l of stage.letters){if(l.taken)continue;if(Math.abs(playerMid.x-l.x)<27&&Math.abs(playerMid.y-l.y)<30){l.taken=true;hearts++;sound('heart');burst(l.x,l.y,9,'heart','#ff93aa');if(hearts%10===0&&lives<maxLives){lives++;toast('10 писем! Любовь добавила ♥ жизнь.',3);}updateHUD();}}
+ for(const cp of stage.flags){if(!cp.active&&player.x+player.w/2>=cp.x-15){cp.active=true;checkpoint={x:cp.x+15,y:cp.y-player.h-2};sound('checkpoint');burst(cp.x+18,cp.y-75,21,'star','#91ffd3');lives=Math.min(maxLives,lives+1);updateHUD();toast('♥ Контрольная точка! Сил стало больше.',3);}}
+ if(player.x+player.w/2>=stage.exit){finishLevel();return;}
+ for(let i=0;i<stage.dialogues.length;i++)if(player.x>stage.dialogues[i][0]&&!stage.dialoguesSeen.has(i)){stage.dialoguesSeen.add(i);toast(stage.dialogues[i][1],4);}
+ camera=lerp(camera,clamp(player.x-gameplayViewWidth()*.36,0,stage.width-gameplayViewWidth()),Math.min(1,dt*6));
+}
+function finishLevel(){sound('win');resetInput();if(levelIndex<2){state='chapterWin';showPanel(`<div class="eyebrow">Глава ${levelIndex+1} пройдена!</div><h2>${levelIndex===0?'Город не сломил её':'Даже фабрика не купила её сердце'}</h2><p>${levelIndex===0?'Стефания перепрыгнула через чужие ожидания. Впереди — фабрика, где улыбки меряют по линейке.':'Позади остались пустые обещания. А впереди — крыши и последний прыжок навстречу любимому.'}</p><div class="storyQuote">«Пока ты идёшь к тому, кого любишь, каждая дорога становится немного светлее».</div><p><strong>Собрано писем: 💌 ${hearts}</strong></p><div class="buttonRow"><button class="btn" id="nextBtn">Следующая глава →</button></div>`);el('nextBtn').onclick=()=>showStory(levelIndex+1);}else startEnding();}
+function pause(){if(state==='playing'){state='paused';showPanel(`<div class="eyebrow">История на паузе</div><h2>Перерыв на нежность ♥</h2><p>Стефания переводит дыхание. Роман никуда не делся.</p><div class="buttonRow"><button class="btn" id="resumeBtn">▶ Продолжить</button><button class="btn secondary" id="restartBtn">↻ Заново с главы</button><button class="btn secondary" id="homeBtn">Главное меню</button></div>`);el('resumeBtn').onclick=()=>{state='playing';hidePanel()};el('restartBtn').onclick=()=>{lives=4;startLevel(levelIndex);};el('homeBtn').onclick=title;}else if(state==='paused'){state='playing';hidePanel();}}
+el('pauseBtn').onclick=pause;
+function updateControls(){if(state!=='playing')return;input.left=keyDown.has('ArrowLeft')||keyDown.has('KeyA')||buttonState.left;input.right=keyDown.has('ArrowRight')||keyDown.has('KeyD')||buttonState.right;const held=keyDown.has('Space')||keyDown.has('ArrowUp')||keyDown.has('KeyW')||buttonState.jump;if(held&&!input.jump)player.jumpBuffer=.14;input.jump=held;}
+const buttonState={left:false,right:false,jump:false};
+for(const [id,name] of [['leftBtn','left'],['rightBtn','right'],['jumpBtn','jump']]){const b=el(id);const down=ev=>{ev.preventDefault();initAudio();buttonState[name]=true;b.classList.add('active');try{b.setPointerCapture(ev.pointerId)}catch(_){};updateControls();};const up=ev=>{ev.preventDefault();buttonState[name]=false;b.classList.remove('active');updateControls();};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);}
+window.addEventListener('keydown',ev=>{
+ const gameKeys=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyP','KeyM','Escape','Enter','KeyR'];if(gameKeys.includes(ev.code))ev.preventDefault();
+ if(ev.repeat&&['KeyP','KeyM','Escape','Enter','KeyR'].includes(ev.code))return;
+ if(ev.code==='KeyM'){muted=!muted;setSoundUi();if(!muted)initAudio();return;}
+ if(ev.code==='KeyP'||ev.code==='Escape'){pause();return;}
+ if(ev.code==='KeyR'&&state==='gameover'){lives=4;hearts=0;startLevel(0);return;}
+ if(ev.code==='Enter'&&state!=='playing'){const primary=panel.querySelector('.btn');if(primary){primary.click();return;}}
+ keyDown.add(ev.code);if(state==='playing'){initAudio();updateControls();}
+});
+window.addEventListener('keyup',ev=>{keyDown.delete(ev.code);updateControls();});
+window.addEventListener('blur',()=>{keyDown.clear();for(const k in buttonState)buttonState[k]=false;updateControls();if(state==='playing')pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause();});
+function drawStage(){ctx.save();ctx.translate(-camera,0);const low=camera-130,high=camera+W+130;
+ for(const p of stage.platforms)if(p.x+p.w>low&&p.x<high)(p.ground?drawGround(p,stage.theme):drawLedge(p,clock));
+ for(const s of stage.spikes)if(s.x+s.w>low&&s.x<high)drawSpike(s,clock);
+ for(const l of stage.letters)if(!l.taken&&l.x>low&&l.x<high)drawLetter(l.x,l.y,clock);
+ for(const cp of stage.flags)if(cp.x>low&&cp.x<high)drawCheckpoint(cp,clock,cp.active);
+ for(const [x,words] of stage.signs){const y=groundAt(stage,x);if(x>low&&x<high)drawSign(x,y,words);}
+ for(const e of stage.enemies)if(e.alive&&e.x>low&&e.x<high)drawEnemy(e,clock);
+ drawExit(stage.exit,groundAt(stage,stage.exit),clock,stage.theme);
+ if(!(player.invul>0&&Math.floor(clock*12)%2===0))drawDachshund(player.x+1,player.y-1,1,clock,{dir:player.dir,step:player.step,fly:!player.onGround});
+ drawParticles(0);ctx.restore();
+}
+function vignette(){const g=ctx.createRadialGradient(W/2,H/2,180,W/2,H/2,630);g.addColorStop(0,'rgba(28,20,37,0)');g.addColorStop(1,'rgba(27,20,45,.28)');rect(0,0,W,H,g);}
+function drawTitleBg(t){drawSky(0,t);drawHills(0,0);drawCity(0,0,t);rect(0,460,W,85,'#614b69','#31263a',4);for(let i=0;i<18;i++)star(rand(i+31)*W,rand(i+12)*430,rand(i)*5+2,'rgba(255,235,206,.4)');drawDachshund(85,400,2,t,{dir:1,step:.6});drawGreyhound(830,388,2.05,t,{dir:-1});for(let i=0;i<5;i++)heart(W/2+Math.sin(t+i)*115,100+i*73+Math.cos(t*.7+i)*16,9,'#ffb4c4',null);vignette();}
+function drawPlay(){bgForLevel(stage.theme,camera,clock);drawStage();vignette();if(player&&stage){const pr=clamp(player.x/stage.exit,0,1);rounded(300,22,360,13,6,'rgba(38,28,49,.5)','#fff5df',1);rounded(304,26,Math.max(1,352*pr),5,3,'#ffa5bc');heart(304+352*pr,28,7,'#ffd7e0','#38273b');}}
+function drawSpeechHints(){if(!stage)return;ctx.save();ctx.translate(-camera,0);for(const cp of stage.flags)if(cp.x>camera&&cp.x<camera+W&&!cp.active){const yy=cp.y-155+Math.sin(clock*3)*5;rounded(cp.x-73,yy,137,28,11,'rgba(255,238,216,.94)','#30263a',2);text('♥ ВПЕРЁД!',cp.x-3,yy+19,13,'#4b3349','center');}ctx.restore();}
+function setCaption(speaker,line){if(!line){endCaption.style.display='none';return;}endCaption.style.display='block';el('endingSpeaker').textContent=speaker;el('endingLine').textContent=line;}
+function startEnding(){hideToast();state='ending';endingTime=0;endingPhase=-1;endingTextKey=-1;slowMo=false;hidePanel();hud.style.display='none';mobile.classList.remove('playing');el('orientation').classList.remove('playing');skip.style.display='block';skip.textContent='К следующей сцене ›';sound('win');}
+const reunionLines=[
+ [0,'Роман','Стефания... Ты пришла. Даже когда весь город говорил, что это невозможно.'],
+ [3.7,'Роман','Без тебя этот огромный мир был одной бесконечной пустой комнатой. Ты спасла меня от одиночества.'],
+ [7.5,'Роман','Ты важнее всей славы, денег и нелепых наград. Рядом с тобой я впервые чувствую себя по-настоящему счастливым.'],
+ [11.2,'Роман','Я люблю тебя всем сердцем. Ты — самое дорогое существо в моей жизни.'],
+ [14.4,'Стефания','И я люблю тебя, Роман! Если у мира закончится доброта, мы создадим свою. Вместе.']
+];
+const magicLines=[[18,'Рассказчик','Они обнялись. Роман нежно поцеловал Стефанию — и случилось невозможное.'],[21,'Стефания','Роман... Мы что, летим?!'],[23,'Роман','Похоже, взаимная любовь сильнее гравитации. Даже у неё нет таких аргументов!']];
+const flightLines=[[26,'Рассказчик','Без самолётов и без билетов они взмыли над городом и оставили позади всю боль.'],[30,'Стефания','В Таиланд? На своих собственных силах?'],[33,'Роман','Конечно. Нам не нужны крылья. Нам достаточно друг друга.'],[36,'Рассказчик','Под ними пролетели моря, облака и далёкие огни. Впереди уже сиял океан.']];
+const beachLines=[[40,'Рассказчик','Таиланд. Тёплый песок, море, горы, пальмы, манго и самый счастливый закат.'],[44,'Стефания','Этот манго вкуснее всех голливудских премий! И ананас тоже подозрительно счастливый.'],[48,'Роман','Мне не нужен идеальный мир. Ты рядом — и это самое прекрасное место на свете.'],[52,'Стефания','Люблю тебя. Давай каждый день выбирать друг друга?'],[55,'Роман','Каждый день. В любой стране. В любом мире. Всегда. ♥']];
+function updateEnding(dt){endingTime+=dt*(slowMo?2:1);clock+=dt;let phase=endingTime<18?0:endingTime<26?1:endingTime<40?2:endingTime<61?3:4;
+ if(phase!==endingPhase){endingPhase=phase;endingTextKey=-1;endCaption.classList.toggle('beachMode',phase===3);if(phase===1)sound('magic');if(phase===3)sound('win');}
+ if(phase===4){state='completed';showCompleted();return;}
+ const all=[...reunionLines,...magicLines,...flightLines,...beachLines];let chosen=all[0],idx=0;for(let i=0;i<all.length;i++)if(endingTime>=all[i][0]){chosen=all[i];idx=i;}if(idx!==endingTextKey){endingTextKey=idx;setCaption(chosen[1],chosen[2]);}
+ skip.textContent=phase===0?'К волшебству ›':phase===1?'К полёту ›':phase===2?'К Таиланду ›':'К счастливому финалу ›';
+ if(Math.random()<.45&&phase>=1){const x=phase===3?350+rand(clock*42)*180:480+rand(clock*42)*180;particles.push({x,y:150+rand(clock*76)*160,vx:(rand(clock*77)-.5)*30,vy:-15-rand(clock*44)*25,life:.7,max:.7,r:3+rand(clock*52)*5,kind:phase===3?'heart':'star',color:'#ffe4bc'});}
+}
+skip.onclick=()=>{if(state!=='ending')return;if(endingTime<18)endingTime=18;else if(endingTime<26)endingTime=26;else if(endingTime<40)endingTime=40;else endingTime=61;endingPhase=-1;};
+function drawReunion(t){drawSky(2,t);drawHills(0,2);drawCity(0,2,t);const glow=ctx.createLinearGradient(0,270,0,490);glow.addColorStop(0,'rgba(255,184,148,0)');glow.addColorStop(1,'rgba(255,177,151,.55)');rect(0,200,W,280,glow);rect(0,442,W,98,'#514263','#2a213d',5);rect(0,443,W,13,'#cc98a6','#382c42',2);
+ const meetup=ease((t-1.5)/4);const sx=lerp(170,389,meetup),rx=lerp(900,735,meetup),hug=t>=6,smile=t>=12;
+ if(hug){const g=ctx.createRadialGradient(490,355,12,490,355,190);g.addColorStop(0,'rgba(255,150,194,.3)');g.addColorStop(1,'rgba(255,150,194,0)');rect(305,170,380,380,g);}
+ drawGreyhound(rx,375,2.45,t,{dir:-1,hug,closed:smile,bow:ease((t-4)/4)});drawDachshund(sx,402,2.35,t,{dir:1,hug,closed:smile,step:t<5?1:0});
+ if(hug)for(let i=0;i<9;i++)heart(490+Math.sin(t*1.3+i*1.7)*80,230+((i*43-t*18)%195+195)%195,7+i%3,'#ffb9c3',null);
+ if(t>12){heart(488,286+Math.sin(t*4)*5,24,'#ff779f','#4a304f');star(520,274,11,'#ffe8a8');}
+ text('ОНИ НАШЛИ ДРУГ ДРУГА',W/2,69,26,'#fff5db','center');}
+function drawMagic(t){drawSky(2,t,'magic');drawCity(0,2,t);rect(0,446,W,100,'#50415f','#2f273e',5);const k=ease(t/8),cy=340-k*190,cx=470;
+ const glow=ctx.createRadialGradient(cx,cy,12,cx,cy,170+k*160);glow.addColorStop(0,'rgba(255,250,207,.66)');glow.addColorStop(.34,'rgba(255,163,199,.36)');glow.addColorStop(1,'rgba(255,185,218,0)');rect(30,0,900,H,glow);
+ for(let i=0;i<65;i++){const a=i*2.399+t*.55,r=25+Math.sqrt(i)*22+k*55;star(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2+rand(i)*7, i%2?'#ffd0e3':'#fff5b8');}
+ drawGreyhound(625,cy+43,2.1,t,{dir:-1,hug:true,closed:true,fly:k>.25});drawDachshund(385,cy+68,2.1,t,{dir:1,hug:true,closed:true,fly:k>.25});heart(cx,cy-60,30,'#ff6199','#ffe3b3');text('ЧУДО СЛУЧИЛОСЬ',480,81,33,'#fff2de','center');}
+function drawFlight(t){drawSky(0,t,'flight');const prog=ease(t/14);
+ // A sweeping ocean seen from the clouds, then Thai limestone islands approaching.
+ const oceanY=380-prog*22;rect(0,oceanY,W,H-oceanY,'#4d9dba');for(let j=0;j<19;j++){const x=(j*121+t*100)%(W+130)-60,y=oceanY+20+(j*29)%128;ell(x,y,40,2,'rgba(240,249,235,.38)');}
+ for(let i=0;i<11;i++){let cx=(i*185-t*125)%(W+300);if(cx< -150)cx+=W+300;cloud(cx,70+(i*57)%260,.9+rand(i)*1.5,'rgba(255,250,233,.65)');}
+ if(prog>.5){for(let i=0;i<5;i++){const x=760+i*150-(prog-.5)*1200,y=390+i%2*24;polygon([[x-72,y+60],[x-54,y-45],[x-24,y-70],[x+6,y-43],[x+42,y+50]],'#356b75','#25475a',3);ell(x,y-50,12,15,'#54866f');}}
+ const fy=214+Math.sin(t*2.7)*11;ctx.save();ctx.translate(0,-t*.2);drawGreyhound(505,fy,1.75,t,{dir:1,fly:true,closed:false});drawDachshund(320,fy+20,1.8,t,{dir:1,fly:true,closed:false});ctx.restore();
+ for(let j=0;j<14;j++){let x=(500-j*80+t*35)%(W+100);line(x,245+(j%6)*10,x-35,245+(j%6)*10,'rgba(255,255,244,.38)',2.3);}
+ text('НИ ОДНОГО САМОЛЁТА. ТОЛЬКО ЛЮБОВЬ.',W/2,68,22,'#fff4da','center');}
+function palm(x,y,s,t,mirror=false){ctx.save();ctx.translate(x,y);ctx.scale(mirror?-s:s,s);ctx.strokeStyle='#744d44';ctx.lineWidth=23;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(24,-95,63,-166,47,-250);ctx.stroke();ctx.strokeStyle='#b37b54';ctx.lineWidth=11;ctx.stroke();for(let i=0;i<7;i++){const a=-PI/2+(i-3)*.38+Math.sin(t*2+i)*.025;const ex=47+Math.cos(a)*145,ey=-250+Math.sin(a)*102;polygon([[47,-250],[47+Math.cos(a-.15)*62,-250+Math.sin(a-.15)*48],[ex,ey],[47+Math.cos(a+.15)*58,-250+Math.sin(a+.15)*49]],i%2?'#307d6a':'#3b997a','#225d5a',2);}for(let i=0;i<3;i++)ell(40+i*11,-235+i*9,10,13,'#d39b58','#68493f',2);ctx.restore();}
+function pineapple(x,y,s){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ell(0,0,18,27,'#ffc65d','#6d4a3c',2.5);for(let i=-2;i<3;i++)polygon([[0,-20],[i*7,-39-Math.abs(i)*2],[i*5+5,-16]],'#549b5f','#355a4c',1.6);for(let a=-14;a<16;a+=13)for(let b=-17;b<20;b+=13)line(a,b,a+8,b+8,'#d28f4d',1);ctx.restore();}
+function mango(x,y,s=1){ctx.save();ctx.translate(x,y);ctx.rotate(-.3);ctx.scale(s,s);ell(0,0,24,16,'#ffb652','#d27a55',2);ell(-7,3,6,3,'#ffdb7b');line(10,-10,13,-21,'#56755c',2);ell(21,-17,9,4,'#55a76b',null,1,-.4);ctx.restore();}
+function drawBeach(t){drawSky(0,t,'beach');
+ // sunset through limestone mountains
+ polygon([[0,350],[35,276],[67,257],[115,310],[162,343],[204,365],[0,383]],'#536776','#343c55',3);
+ polygon([[695,362],[752,247],[796,228],[837,272],[874,226],[920,259],[960,318],[960,394]],'#426f75','#2e4a5a',3);
+ polygon([[717,361],[779,293],[826,321],[899,282],[958,336],[960,394]],'#57908b');
+ rect(0,361,W,180,'#4ca7b2');for(let i=0;i<40;i++){let x=(i*97+t*12)%(W+130)-40,y=372+(i*29)%123;ell(x,y,32+rand(i)*28,2,'rgba(255,233,194,.38)');}
+ polygon([[0,454],[175,443],[330,460],[480,437],[695,451],[810,434],[960,448],[960,540],[0,540]],'#f5c592');polygon([[0,481],[175,472],[410,492],[590,475],[960,480],[960,540],[0,540]],'#f4d19d');
+ palm(91,460,1.03,t);palm(907,469,.85,t,true);
+ // picnic cloth and fruit
+ ell(525,487,185,20,'rgba(103,73,79,.22)');polygon([[410,470],[572,464],[630,497],[380,505]],'#fff2df','#765b69',3);line(417,480,590,478,'#ffa9ab',5);ell(488,465,77,14,'#fff5de','#584258',3);mango(462,456,.82);mango(498,458,.77);pineapple(531,450,.5);ell(435,468,11,8,'#da6882');ell(554,463,10,7,'#c8759c');
+ const hug=t>8,smile=t>14,meet=ease((t-5)/5);drawGreyhound(lerp(770,650,meet),402,2.1,t,{dir:-1,hug,closed:smile,bow:ease((t-6)/4)});drawDachshund(lerp(247,340,meet),424,2.04,t,{dir:1,hug,closed:smile});
+ for(let i=0;i<9;i++)heart(500+Math.sin(t*.7+i*1.8)*120,183+((i*41-t*11)%210+210)%210,8+i%4,'#ffb9be',null);
+ star(685,344,4,'#fff2bc');star(730,302,5,'#fff2bc');
+ text('Т А И Л А Н Д',W/2,74,33,'#fff2d2','center');text('Место, где счастье не по подписке',W/2,99,17,'#fff5e8','center');}
+function drawEnding(){const t=endingTime;if(t<18)drawReunion(t);else if(t<26)drawMagic(t-18);else if(t<40)drawFlight(t-26);else drawBeach(t-40);drawParticles(0);vignette();}
+function showCompleted(){state='completed';skip.style.display='none';endCaption.style.display='none';showPanel(`<div class="eyebrow">Счастливая концовка • Таиланд</div><h2>Любовь сильнее мира ♥</h2><p>Стефания и Роман долетели до Таиланда <strong>своими силами</strong>. Они ели сочный манго и ананасы, смеялись, обнимались на пляже и встречали закаты у океана.</p><div class="storyQuote">«Мир не стал идеальным. Но теперь им было с кем делить каждый рассвет. Иногда это и есть настоящее чудо».</div><p><strong>Всего собрано писем: 💌 ${hearts}</strong></p><div class="buttonRow"><button class="btn" id="replayBtn">♥ Пройти историю заново</button><button class="btn secondary" id="beachBtn">✦ Ещё посмотреть на пляж</button></div><p class="tiny">Спасибо, что помогли любви победить.</p>`);el('replayBtn').onclick=title;el('beachBtn').onclick=()=>{state='ending';endingTime=40;endingPhase=-1;endingTextKey=-1;overlay.classList.add('hidden');skip.style.display='block';};}
+function render(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#201b33';ctx.fillRect(0,0,canvas.width,canvas.height);if(state==='playing'&&canvas.width/canvas.height<.95){const z=Math.min(screenScale*1.55,canvas.height/H*.75);ctx.setTransform(z,0,0,z,0,(canvas.height-H*z)/2);}else ctx.setTransform(screenScale,0,0,screenScale,offX,offY);ctx.save();ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();if(stage&&(state==='playing'||state==='paused'||state==='gameover'||state==='chapterWin'||state==='story'&&levelIndex>0)){bgForLevel(stage.theme,camera,clock);drawStage();vignette();if(state==='playing')drawSpeechHints();}else if(state==='ending'||state==='completed'){drawEnding();}else drawTitleBg(wallClock);ctx.restore();}
+let last=0;function tick(now){if(!last)last=now;const dt=Math.min(.034,(now-last)/1000||0);last=now;wallClock+=dt;if(state==='playing'){updateControls();updateGame(dt);}else if(state==='ending')updateEnding(dt);else if(state==='title')clock+=dt;
+ if(toastTimeout>0){toastTimeout-=dt;if(toastTimeout<=0)hideToast();}
+ for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.gravity||0)*dt;if(p.life<=0)particles.splice(i,1);}
+ music(dt);render();requestAnimationFrame(tick);}
+ // Small optional local QA hooks, inert in ordinary gameplay.
+ if(new URLSearchParams(location.search).has('qa'))window.__QA={state:()=>({state,levelIndex,lives,hearts,x:player?.x,y:player?.y,onGround:player?.onGround,endingTime}),start:(i=0)=>{lives=4;hearts=0;startLevel(i);},move:x=>{if(player){player.x=x;player.y=groundAt(stage,x)-player.h-8;player.vy=0;}},ending:()=>startEnding(),time:t=>{endingTime=t;endingPhase=-1;},skip:()=>skip.click()};
+ title();requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
